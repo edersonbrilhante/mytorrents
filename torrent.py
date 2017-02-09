@@ -32,5 +32,7 @@ class Torrent(object):
                  s.num_peers, state_str[s.state])))
 
             time.sleep(10)
-
-        shutil.move(subtitle_file, '/vagrant/series/{}/{}'.format(h.name(), new_subtitle_file))
+        try:
+            shutil.move(subtitle_file, '/vagrant/series/{}/{}'.format(h.name(), new_subtitle_file))
+        except:
+            pass

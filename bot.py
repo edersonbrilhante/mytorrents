@@ -117,5 +117,7 @@ for k, serie in enumerate(list_json):
     if serie.get('last_download') != link and link is not None:
         list_json[k]['last_download'] = link
         a.get_files(link)
+    else:
+        print('Ignoring Serie')
 
 a.write_json(list_json)
