@@ -24,3 +24,7 @@ $> vagrant ssh
 $> cd /vagrant
 $> python3 bot.py
 ```
+
+### Customing your list of series:
+To customize for your list of series, you need to change series.json.
+Property "link" is link of serie. And the property "last_download" has link of last download done(Used and filled, by the script, to control which series was seen).
