@@ -11,12 +11,16 @@ from os import listdir
 import uuid
 import json
 import shutil
+from multiprocessing import Pool
+from functools import partial
 
 
 log = logging.getLogger(__name__)
 
 
 class Series(object):
+
+    list_json = list()
 
     def get_link_downlad(self, url):
         return IOLoop.instance().run_sync(lambda: self._get_link_downlad(url))
@@ -103,21 +107,43 @@ class Series(object):
             json_data.close()
             return data
 
-    def write_json(self, data):
+    def write_json(self,):
         with open('series.json', 'w') as outfile:
-            json.dump(data, outfile)
+            json.dump(self.list_json, outfile)
 
     def get_list(self):
-        return self.load_json('series.json')
+        self.list_json = self.load_json('series.json')
+        return self.list_json
 
-a = Series()
-list_json = a.get_list()
-for k, serie in enumerate(list_json):
-    link = a.get_link_downlad(serie['link'])
-    if serie.get('last_download') != link and link is not None:
-        list_json[k]['last_download'] = link
-        a.get_files(link)
-    else:
-        print('Ignoring Serie')
+    def exec_one(self, serie):
+        key = self.list_json.index(serie)
+        link = self.get_link_downlad(serie['link'])
+        if serie.get('last_download') != link and link is not None:
+            self.list_json[key]['last_download'] = link
+            self.get_files(link)
+        else:
+            print('Ignoring Serie %s' % serie['link'])
 
-a.write_json(list_json)
+
+def exec_one_help(inst, serie):
+    inst.exec_one(serie)
+
+
+def main():
+    processes = 5
+
+    inst = Series()
+    list_json = inst.get_list()
+
+    pool = Pool(processes=processes)
+
+    func = partial(exec_one_help, inst)
+
+    pool.map(func, list_json)
+    pool.close()
+    pool.join()
+
+    inst.write_json()
+
+if __name__ == "__main__":
+    main()
