@@ -1,2 +1,2 @@
 lxml==3.7.2
-tornado==4.4.2
+tornado==6.3.2
